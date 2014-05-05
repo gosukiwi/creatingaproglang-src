@@ -41,14 +41,7 @@ function Token(name, regex, filter) {
 
 /* Tokenizer object constructor */
 function Tokenizer() {
-}
-
-Tokenizer.prototype.tokenize = function (input) {
-    var start = 0,
-        length = input.length,
-        output = [];
-
-    var tokens = [
+    this.tokens = [
         // a while keyword
         new Token('WHILE', '^while'),
 
@@ -85,16 +78,31 @@ Tokenizer.prototype.tokenize = function (input) {
         new Token('EQUAL', '^='),
 
         // a new line
-        new Token('NEWLINE', '^\n')
+        new Token('NEWLINE', '^\n'),
     ];
+
+    // these tokens are matched but are not added to our output
+    this.ignoredTokens = [
+        new Token('SPACE', '^ '),
+        new Token('TAB', '^\t'),
+        new Token('RETURN', '^\r'),
+        // a single line comment
+        new Token('COMMENT', '^#[^\n]*'),
+    ];
+}
+
+Tokenizer.prototype.tokenize = function (input) {
+    var start = 0,
+        length = input.length,
+        output = [];
 
     while(start < length) {
         var str = input.substr(start),
             matched = false;
 
         // for each token defined create a regular expression for the token
-        for(var idx in tokens) {
-            var token = tokens[idx];
+        for(var idx in this.tokens) {
+            var token = this.tokens[idx];
             if(token.isMatch(str)) {
                 output.push(token.plain());
                 start += token.length;
@@ -107,14 +115,18 @@ Tokenizer.prototype.tokenize = function (input) {
             }
         }
 
-        // We didn't match any token...
+        // we didn't match any token...
         if(!matched) {
-            if([' ', '\t', '\r'].indexOf(str.substr(0, 1)) !== -1) {
-                // is it an ignorable input? Meaning space, tab, newline, etc
-                // if so just advance the tokenizer
-                start++;
-            } else {
-                // if not, error out
+            for(idx in this.ignoredTokens) {
+                var ignoredToken = this.ignoredTokens[idx];
+                if(ignoredToken.isMatch(str)) {
+                    start += ignoredToken.length;
+                    matched = true;
+                    break;
+                }
+            }
+
+            if(!matched) {
                 throw 'Could not match token for input ' + str;
             }
         }
