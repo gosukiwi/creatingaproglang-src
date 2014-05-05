@@ -99,7 +99,7 @@ Tokenizer.prototype.tokenize = function (input) {
             }
         }
 
-        // we didn't match any token...
+        // we didn't match any token... try the ignored ones
         if(!matched) {
             for(idx in this.ignoredTokens) {
                 var ignoredToken = this.ignoredTokens[idx];
@@ -109,10 +109,11 @@ Tokenizer.prototype.tokenize = function (input) {
                     break;
                 }
             }
+        }
 
-            if(!matched) {
-                throw 'Could not match token for input ' + str;
-            }
+        // we still haven't matched any? it's an error!
+        if(!matched) {
+            throw 'Could not match token for input ' + str;
         }
     }
 
