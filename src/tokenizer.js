@@ -39,7 +39,7 @@ function Token(name, regex, filter) {
     };
 }
 
-/* Tokenizer object constructor */
+/* Tokenizer constructor function */
 function Tokenizer() {
     this.tokens = [
         // keywords...
