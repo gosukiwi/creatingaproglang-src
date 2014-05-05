@@ -1,0 +1,126 @@
+'use strict';
+
+/* A token used by the tokenizer */
+function Token(name, regex, filter) {
+    this.name = name;
+    this.regex = regex;
+    this.filter = filter;
+
+    // the length of the string this token consumes of the input string
+    // this is not the same as this.text.length as it applies to the match
+    // of the regular expression, the text can be filtered using this.filter
+    // thus changing the actual length of the match
+    this.length = 0;
+
+    // the matched text of this token once isMatched is called, with filter
+    // applied if defined
+    this.text = '';
+
+    // checks whether an string matches this token 
+    this.isMatch = function (str) {
+        var match = str.match(this.regex);
+
+        if(match) {
+            this.text = this.filter ? this.filter(match[0]) : match[0];
+            this.length = match[0].length;
+            return true;
+        }
+
+        return false;
+    };
+
+    // returns a plain javascript object representation of
+    // this token
+    this.plain = function () {
+        return {
+            'NAME': this.name,
+            'VALUE': this.text
+        };
+    };
+}
+
+/* Tokenizer object constructor */
+function Tokenizer() {
+}
+
+Tokenizer.prototype.tokenize = function (input) {
+    var start = 0,
+        length = input.length,
+        output = [];
+
+    var tokens = [
+        // a while keyword
+        new Token('WHILE', '^while'),
+
+        // an if keyword
+        new Token('IF', '^if'),
+
+        // an end keyword
+        new Token('END', '^end'),
+
+        // a true keyword
+        new Token('TRUE', '^true'),
+
+        // a false keyword
+        new Token('FALSE', '^false'),
+
+        // open parentheses
+        new Token('PARENS_OPEN', '^\\('),
+
+        // close parentheses
+        new Token('PARENS_CLOSE', '^\\)'),
+
+        // a string
+        new Token('STRING', '^"(?:[^\\"]|\\.)*"', function (str) {
+            return str.substr(1, str.length - 2);
+        }),
+
+        // an identifier
+        new Token('IDENTIFIER', '^[a-zA-Z][a-zA-Z0-9_]*'),
+
+        // a comparison equal
+        new Token('EQUALEQUAL', '^=='),
+
+        // an equal
+        new Token('EQUAL', '^='),
+
+        // a new line
+        new Token('NEWLINE', '^\n')
+    ];
+
+    while(start < length) {
+        var str = input.substr(start),
+            matched = false;
+
+        // for each token defined create a regular expression for the token
+        for(var idx in tokens) {
+            var token = tokens[idx];
+            if(token.isMatch(str)) {
+                output.push(token.plain());
+                start += token.length;
+
+                // turn on the matched flag
+                matched = true;
+
+                // we already found the token! stop trying
+                break;
+            }
+        }
+
+        // We didn't match any token...
+        if(!matched) {
+            if([' ', '\t', '\r'].indexOf(str.substr(0, 1)) !== -1) {
+                // is it an ignorable input? Meaning space, tab, newline, etc
+                // if so just advance the tokenizer
+                start++;
+            } else {
+                // if not, error out
+                throw 'Could not match token for input ' + str;
+            }
+        }
+    }
+
+    return output;
+};
+
+module.exports = Tokenizer;
