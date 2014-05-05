@@ -42,41 +42,25 @@ function Token(name, regex, filter) {
 /* Tokenizer object constructor */
 function Tokenizer() {
     this.tokens = [
-        // a while keyword
+        // keywords...
         new Token('WHILE', '^while'),
-
-        // an if keyword
         new Token('IF', '^if'),
-
-        // an end keyword
         new Token('END', '^end'),
-
-        // a true keyword
         new Token('TRUE', '^true'),
-
-        // a false keyword
         new Token('FALSE', '^false'),
-
-        // open parentheses
+        // parentheses
         new Token('PARENS_OPEN', '^\\('),
-
-        // close parentheses
         new Token('PARENS_CLOSE', '^\\)'),
-
         // a string
         new Token('STRING', '^"(?:[^\\"]|\\.)*"', function (str) {
             return str.substr(1, str.length - 2);
         }),
-
         // an identifier
         new Token('IDENTIFIER', '^[a-zA-Z][a-zA-Z0-9_]*'),
-
         // a comparison equal
         new Token('EQUALEQUAL', '^=='),
-
         // an equal
         new Token('EQUAL', '^='),
-
         // a new line
         new Token('NEWLINE', '^\n'),
     ];
