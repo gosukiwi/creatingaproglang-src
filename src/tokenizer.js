@@ -1,3 +1,10 @@
+/**
+ * URYB tokenizer. It transforms an input string into a list of tokens.
+ *
+ * @author Federico Ramirez
+ * @licence MIT
+ */
+
 'use strict';
 
 /**

@@ -1,7 +1,6 @@
 /* global describe, it */
 'use strict';
 
-
 describe('Tokenizer', function () {
   var assert    = require('assert');
   var Tokenizer = require('../src/tokenizer.js');
