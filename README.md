@@ -1,8 +1,10 @@
-# Source code for "Creating a Programming Language" book
-All source code for the book can be found in `src/`, tests reside in `tests/`.
+# Book source code
+All source code for the [Creating a Programming
+Language](https://leanpub.com/creatingaproglang) book can be found in `src/`,
+tests reside in `tests/`.
 
-In order to run the code you need to install node and mocha.
+# Running tests
+You'll need mocha to run tests, then simply run mocha test/
 
     npm install -g mocha
-
-Book URL: https://leanpub.com/creatingaproglang
+    mocha test/
