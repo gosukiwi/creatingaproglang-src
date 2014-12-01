@@ -133,9 +133,9 @@ Parser.prototype.parseFunctionCall = function () {
  * <number>
  */
 Parser.prototype.parseExpression = function () {
-  var token = this.peek();
+  var first  = this.peek();
   var second = this.tokens[1];
-  switch(token.NAME) {
+  switch(first.NAME) {
     case 'IDENTIFIER':
       if(second.NAME === 'PARENS_OPEN') {
         return this.parseFunctionCall();
@@ -146,7 +146,7 @@ Parser.prototype.parseExpression = function () {
     case 'NUMBER':
       return this.parseNumber();
     default:
-      throw 'Could not parse expression, invalid token ' + token.NAME;
+      throw 'Could not parse expression, invalid token ' + first.NAME;
   }
 };
 
@@ -169,9 +169,9 @@ Parser.prototype.parseAssign = function () {
  * Parses a statement
  */
 Parser.prototype.parseStatement = function () {
-  var token  = this.peek();
+  var first  = this.peek();
   var second = this.tokens[1];
-  switch(token.NAME) {
+  switch(first.NAME) {
     case 'IDENTIFIER':
       if(second.NAME === 'PARENS_OPEN') {
         return this.parseFunctionCall();
