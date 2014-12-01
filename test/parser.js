@@ -67,6 +67,16 @@ describe('Parser', function () {
           }
         ], parse('f(1, "b", 2)'));
       });
+
+      it('should work without arguments', function () {
+        assert.deepEqual([
+          {
+            NAME: 'FUNCTION_CALL',
+            FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
+            ARGUMENTS: []
+          }
+        ], parse('f()'));
+      });
     });
   });
 });
