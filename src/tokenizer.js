@@ -1,6 +1,8 @@
 'use strict';
 
-/* A token used by the tokenizer */
+/**
+ * Constructor function for the Token object.
+ */
 function Token(name, regex, filter) {
     this.name = name;
     this.regex = regex;
@@ -15,29 +17,32 @@ function Token(name, regex, filter) {
     // the matched text of this token once isMatched is called, with filter
     // applied if defined
     this.text = '';
-
-    // checks whether an string matches this token 
-    this.isMatch = function (str) {
-        var match = str.match(this.regex);
-
-        if(match) {
-            this.text = this.filter ? this.filter(match[0]) : match[0];
-            this.length = match[0].length;
-            return true;
-        }
-
-        return false;
-    };
-
-    // returns a plain javascript object representation of
-    // this token
-    this.plain = function () {
-        return {
-            'NAME': this.name,
-            'VALUE': this.text
-        };
-    };
 }
+
+/**
+ * Does the input string match this token?
+ */
+Token.prototype.isMatch = function (str) {
+  var match = str.match(this.regex);
+
+  if(match) {
+    this.text = this.filter ? this.filter(match[0]) : match[0];
+    this.length = match[0].length;
+    return true;
+  }
+
+  return false;
+};
+
+/**
+ * Return a plain javascript representation of this token
+ */
+Token.prototype.plain = function () {
+  return {
+    'NAME': this.name,
+    'VALUE': this.text
+  };
+};
 
 /* Tokenizer constructor function */
 function Tokenizer() {
@@ -55,8 +60,13 @@ function Tokenizer() {
         new Token('STRING', '^"(?:[^\\"]|\\.)*"', function (str) {
             return str.substr(1, str.length - 2);
         }),
+        // a number
+        new Token('NUMBER', '^\\d+(\\.\\d+)?', function (str) {
+          // hack to cast to either float or int
+          return (+str);
+        }),
         // an identifier
-        new Token('IDENTIFIER', '^[a-zA-Z][a-zA-Z0-9_]*'),
+        new Token('IDENTIFIER', '^[a-za-z][a-za-z0-9_]*'),
         // a comparison equal
         new Token('EQUALEQUAL', '^=='),
         // an equal
@@ -76,13 +86,13 @@ function Tokenizer() {
 }
 
 Tokenizer.prototype.tokenize = function (input) {
-    var start = 0,
-        length = input.length,
-        output = [];
+    var start  = 0;
+    var length = input.length;
+    var output = [];
 
     while(start < length) {
-        var str = input.substr(start),
-            matched = false;
+        var str     = input.substr(start);
+        var matched = false;
 
         // for each token defined create a regular expression for the token
         for(var idx in this.tokens) {
