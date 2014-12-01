@@ -32,15 +32,18 @@ function Parser(tokens) {
 
 Parser.prototype.parse = function () {
   var res = [];
-  //while(this.realTokens.length > 0) {
+  while(this.tokens.length > 0) {
     res.push(this.parseStatement());
-  //}
+  }
   return res;
 };
 
 // Helper methods
 // ---------------------------------------------------------------------------
 
+/**
+ * Removes the first token from the array and returns it.
+ */
 Parser.prototype.pop = function (name) {
   if(name && this.tokens[0].NAME !== name) {
     throw 'Expected ' + name + ', got ' + this.tokens[0].NAME;
@@ -49,12 +52,27 @@ Parser.prototype.pop = function (name) {
   return this.tokens.shift();
 };
 
+/**
+ * Takes a peek at the tokens array and returns the first one without removing
+ * it.
+ */
 Parser.prototype.peek = function (name) {
   if(name && this.tokens[0].name !== name) {
     throw 'Expected ' + name + ', got ' + this.tokens[0].NAME;
   }
 
   return this.tokens[0];
+};
+
+/**
+ * Consumes new lines if there
+ */
+Parser.prototype.consumeNewlines = function () {
+  var token = this.peek();
+  while(token && token.NAME === 'NEWLINE') {
+    this.pop();
+    token = this.peek();
+  }
 };
 
 // Atom parsing
@@ -70,11 +88,17 @@ Parser.prototype.parseNumber = function () {
   return result;
 };
 
+Parser.prototype.parseIdentifier = function () {
+  var result = this.pop('IDENTIFIER');
+  return result;
+};
+
 // Expression parsing
 // ---------------------------------------------------------------------------
 
 /**
  * Parse a list of arguments a function call can have
+ * <expression> <comma> <expression> [...]
  */
 Parser.prototype.parseCallArgumentList = function () {
   var result = [];
@@ -97,6 +121,7 @@ Parser.prototype.parseFunctionCall = function () {
   this.pop('PARENS_OPEN');
   var args = this.parseCallArgumentList();
   this.pop('PARENS_CLOSE');
+  this.consumeNewlines();
   return { NAME: 'FUNCTION_CALL', FUNCTION_NAME: name, ARGUMENTS: args };
 };
 
@@ -109,9 +134,13 @@ Parser.prototype.parseFunctionCall = function () {
  */
 Parser.prototype.parseExpression = function () {
   var token = this.peek();
+  var second = this.tokens[1];
   switch(token.NAME) {
     case 'IDENTIFIER':
-      return this.parseFunctionCall();
+      if(second.NAME === 'PARENS_OPEN') {
+        return this.parseFunctionCall();
+      }
+      return this.parseIdentifier();
     case 'STRING':
       return this.parseString();
     case 'NUMBER':
@@ -132,6 +161,7 @@ Parser.prototype.parseAssign = function () {
   var identifier = this.pop('IDENTIFIER');
   this.pop('EQUAL');
   var num = this.parseExpression();
+  this.consumeNewlines();
   return { NAME: 'ASSIGNMENT', LHS: identifier, RHS: num };
 };
 
@@ -139,7 +169,7 @@ Parser.prototype.parseAssign = function () {
  * Parses a statement
  */
 Parser.prototype.parseStatement = function () {
-  var token = this.peek();
+  var token  = this.peek();
   var second = this.tokens[1];
   switch(token.NAME) {
     case 'IDENTIFIER':

@@ -48,34 +48,48 @@ describe('Parser', function () {
     });
 
     describe('Function calls', function () {
-      it('should work with an argument', function () {
-        assert.deepEqual([
-          {
-            NAME: 'FUNCTION_CALL',
-            FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
-            ARGUMENTS: [ { NAME: 'NUMBER', VALUE: 1 } ]
-          }
-        ], parse('f(1)'));
-      });
+      //it('should work with an argument', function () {
+      //  assert.deepEqual([
+      //    {
+      //      NAME: 'FUNCTION_CALL',
+      //      FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
+      //      ARGUMENTS: [ { NAME: 'NUMBER', VALUE: 1 } ]
+      //    }
+      //  ], parse('f(1)'));
+      //});
 
-      it('should work with several arguments', function () {
-        assert.deepEqual([
-          {
-            NAME: 'FUNCTION_CALL',
-            FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
-            ARGUMENTS: [ { NAME: 'NUMBER', VALUE: 1 }, { NAME: 'STRING', VALUE: 'b' }, { NAME: 'NUMBER', VALUE: 2 } ]
-          }
-        ], parse('f(1, "b", 2)'));
-      });
+      //it('should work with several arguments', function () {
+      //  assert.deepEqual([
+      //    {
+      //      NAME: 'FUNCTION_CALL',
+      //      FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
+      //      ARGUMENTS: [ { NAME: 'NUMBER', VALUE: 1 }, { NAME: 'STRING', VALUE: 'b' }, { NAME: 'NUMBER', VALUE: 2 } ]
+      //    }
+      //  ], parse('f(1, "b", 2)'));
+      //});
 
-      it('should work without arguments', function () {
+      //it('should work without arguments', function () {
+      //  assert.deepEqual([
+      //    {
+      //      NAME: 'FUNCTION_CALL',
+      //      FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
+      //      ARGUMENTS: []
+      //    }
+      //  ], parse('f()'));
+      //});
+
+      it('should work with function calls as arguments', function () {
         assert.deepEqual([
           {
             NAME: 'FUNCTION_CALL',
             FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
-            ARGUMENTS: []
+            ARGUMENTS: [{
+              NAME: 'FUNCTION_CALL',
+              FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'g' },
+              ARGUMENTS: [{NAME: 'IDENTIFIER', VALUE: 'a'}]
+            }]
           }
-        ], parse('f()'));
+        ], parse('f(g(a))'));
       });
     });
   });
