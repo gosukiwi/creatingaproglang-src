@@ -71,6 +71,8 @@ function Tokenizer() {
         new Token('EQUALEQUAL', '^=='),
         // an equal
         new Token('EQUAL', '^='),
+        // a comma
+        new Token('COMMA', '^,'),
         // a new line
         new Token('NEWLINE', '^\n'),
     ];

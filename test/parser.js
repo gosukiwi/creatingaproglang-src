@@ -47,17 +47,26 @@ describe('Parser', function () {
       });
     });
 
-    it('should parse function calls', function () {
-      assert.deepEqual([
-        {
-          NAME: 'FUNCTION_CALL',
-          FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
-          ARGUMENTS: [ { NAME: 'NUMBER', VALUE: 1 } ]
-        }
-      ], parse('f(1)'));
-    });
-  });
+    describe('Function calls', function () {
+      it('should work with an argument', function () {
+        assert.deepEqual([
+          {
+            NAME: 'FUNCTION_CALL',
+            FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
+            ARGUMENTS: [ { NAME: 'NUMBER', VALUE: 1 } ]
+          }
+        ], parse('f(1)'));
+      });
 
-  describe('Expressions', function () {
+      it('should work with several arguments', function () {
+        assert.deepEqual([
+          {
+            NAME: 'FUNCTION_CALL',
+            FUNCTION_NAME: { NAME: 'IDENTIFIER', VALUE: 'f' },
+            ARGUMENTS: [ { NAME: 'NUMBER', VALUE: 1 }, { NAME: 'STRING', VALUE: 'b' }, { NAME: 'NUMBER', VALUE: 2 } ]
+          }
+        ], parse('f(1, "b", 2)'));
+      });
+    });
   });
 });

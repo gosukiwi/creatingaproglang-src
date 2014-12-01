@@ -80,6 +80,10 @@ Parser.prototype.parseCallArgumentList = function () {
   var result = [];
   while(this.peek().NAME !== 'PARENS_CLOSE') {
     result.push(this.parseExpression());
+    // Are we done yet? no? Consume a comma and wait for more arguments
+    if(this.peek().NAME !== 'PARENS_CLOSE') {
+      this.pop('COMMA');
+    }
   }
   return result;
 };
