@@ -160,9 +160,9 @@ Parser.prototype.parseExpression = function () {
 Parser.prototype.parseAssign = function () {
   var identifier = this.pop('IDENTIFIER');
   this.pop('EQUAL');
-  var num = this.parseExpression();
+  var exp = this.parseExpression();
   this.consumeNewlines();
-  return { NAME: 'ASSIGNMENT', LHS: identifier, RHS: num };
+  return { NAME: 'ASSIGNMENT', LHS: identifier, RHS: exp };
 };
 
 /**
