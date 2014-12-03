@@ -16,8 +16,7 @@
 "("                     return 'PARENS_OPEN';
 ")"                     return 'PARENS_CLOSE';
 "="                     return 'EQ';
-[\n]+                   return 'NEWLINE';
-
+\n+                     return 'NEWLINE';
 <<EOF>>                 return 'EOF';
 
 /lex
@@ -26,15 +25,20 @@
 
 %%
 
+OptionalNewline
+    : /* empty */
+    | NEWLINE
+    ;
+
 Program
     : StatementList EOF
         { return $1 }
     ;
 
 StatementList
-    : Statement StatementList
+    : Statement OptionalNewline StatementList
         { $$ = $1.concat([$2]); }
-    | Statement
+    | Statement OptionalNewline
         { $$ = [$1]; }
     ;
 
@@ -47,8 +51,26 @@ Statement
         { $$ = $1; }
     ;
 
+/* Rules that can be both an statement and an expression                    */
+/* ------------------------------------------------------------------------ */
+
+FunctionCall
+    : LHS PARENS_OPEN CallArgumentList PARENS_CLOSE
+        { $$ = { TYPE: 'FUNCTION_CALL', NAME: $1, ARGUMENTS: $3 }; }
+    ;
+
+/* Statements                                                               */
+/* ------------------------------------------------------------------------ */
+
+OptionalStatementList
+    : /* nothing */
+        { $$ = []; }
+    | StatementList
+        { $$ = $1; }
+    ;
+
 FunctionDefinition
-    : DEF IDENTIFIER PARENS_OPEN DefinitionArgumentList PARENS_CLOSE NEWLINE StatementList NEWLINE END
+    : DEF IDENTIFIER PARENS_OPEN DefinitionArgumentList PARENS_CLOSE NEWLINE OptionalStatementList END
         { $$ = { TYPE: 'FUNCTION_DEFINITION', NAME: $2, ARGUMENTS: $4, BODY: $7 }; }
     ;
 
@@ -66,9 +88,18 @@ DefinitionPopulatedArgumentList
         { $$ = [$1].concat($3); }
     ;
 
-FunctionCall
-    : LHS PARENS_OPEN PARENS_CLOSE
-        { $$ = { TYPE: 'FUNCTION_CALL', NAME: $1, ARGUMENTS: [] }; }
+CallArgumentList
+    : /* empty */
+        { $$ = []; }
+    | CallPopulatedArgumentList
+        { $$ = $1; }
+    ;
+
+CallPopulatedArgumentList
+    : Expression
+        { $$ = [$1]; }
+    | Expression COMMA CallPopulatedArgumentList
+        { $$ = [$1].concat($3); }
     ;
 
 Assignment
@@ -76,22 +107,25 @@ Assignment
         { $$ = { TYPE: 'ASSIGNMENT', LHS: $1, RHS: $3 }; }
     ;
 
-/* possible left-hand-side values */
-LHS
-    : Identifier
-        { $$ = $1 }
-    ;
-
-/* Expressions */
+/* Expressions                                                              */
+/* ------------------------------------------------------------------------ */
 
 Expression
     : PARENS_OPEN Expression PARENS_CLOSE
         { $$ = $2; }
+    | FunctionCall
+        { $$ = $1; }
     | STRING
         { $$ = { TYPE: 'STRING', VALUE: yytext.substr(1, yytext.length - 2) }; }
     | NUMBER
         { $$ = { TYPE: 'NUMBER', VALUE: (+yytext) }; }
-    | Identifier
+    | LHS
+        { $$ = $1 }
+    ;
+
+/* possible left-hand-side values */
+LHS
+    : Identifier
         { $$ = $1 }
     ;
 

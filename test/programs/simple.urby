@@ -1,0 +1,4 @@
+def myfunc()
+    a = 1
+    f()
+end
