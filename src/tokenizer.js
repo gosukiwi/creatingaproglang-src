@@ -81,7 +81,7 @@ function Tokenizer() {
         // a comma
         new Token('COMMA', '^,'),
         // an identifier
-        new Token('IDENTIFIER', '^[a-za-z][a-za-z0-9_]*'),
+        new Token('IDENTIFIER', '^[a-zA-Z][a-zA-Z0-9_]*'),
         // a new line
         new Token('NEWLINE', '^\n'),
     ];
