@@ -6,6 +6,11 @@
 /* Keywords */
 "def"                   return 'DEF';
 "end"                   return 'END';
+"if"                    return 'IF';
+"&&"                    return 'AND';
+"and"                   return 'AND';
+"||"                    return 'OR';
+"or"                    return 'OR';
 
 /* Literals */
 " "+                    /* skip whitespace */
@@ -20,6 +25,9 @@
 <<EOF>>                 return 'EOF';
 
 /lex
+
+%left AND
+%left OR
 
 %start Program
 
@@ -46,7 +54,9 @@ Statement
     : FunctionDefinition
         { $$ = $1; }
     | FunctionCall
-        { $$ = $1 }
+        { $$ = $1; }
+    | If
+        { $$ = $1; }
     | Assignment
         { $$ = $1; }
     ;
@@ -107,12 +117,26 @@ Assignment
         { $$ = { TYPE: 'ASSIGNMENT', LHS: $1, RHS: $3 }; }
     ;
 
+If
+    : IF Expression NEWLINE OptionalStatementList END
+        { $$ = { TYPE: 'IF', CONDITION: $2, BODY: $4 }; }
+    ;
+
 /* Expressions                                                              */
 /* ------------------------------------------------------------------------ */
+
+BinaryOperation
+    : Expression AND Expression
+        { $$ = { TYPE: 'BINARY_OPERATION', OPERATION: 'AND', LHS: $1, RHS: $3 }; }
+    | Expression OR Expression
+        { $$ = { TYPE: 'BINARY_OPERATION', OPERATION: 'OR', LHS: $1, RHS: $3 }; }
+    ;
 
 Expression
     : PARENS_OPEN Expression PARENS_CLOSE
         { $$ = $2; }
+    | BinaryOperation
+        { $$ = $1; }
     | FunctionCall
         { $$ = $1; }
     | STRING

@@ -107,6 +107,43 @@ describe('Parser', function () {
         ], parse('f(g(a))'));
       });
     });
+
+    describe('If statement', function () {
+      it('should work with an expression', function () {
+        assert.deepEqual([{
+          TYPE: 'IF',
+          CONDITION: { TYPE: 'NUMBER', VALUE: 1 },
+          BODY: [{ TYPE: 'ASSIGNMENT', LHS: { TYPE: 'IDENTIFIER', VALUE: 'a' }, RHS: { TYPE: 'STRING', VALUE: 'hello' } }]
+        }], parse('if 1\na = "hello"\nend'));
+      });
+
+      it('should work with a simple binop', function () {
+        assert.deepEqual([{
+          TYPE: 'IF',
+          CONDITION: { TYPE: 'BINARY_OPERATION', OPERATION: 'AND', LHS: { TYPE: 'IDENTIFIER', VALUE: 'a' }, RHS: { TYPE: 'IDENTIFIER', VALUE: 'b' } },
+          BODY: [{ TYPE: 'ASSIGNMENT', LHS: { TYPE: 'IDENTIFIER', VALUE: 'a' }, RHS: { TYPE: 'STRING', VALUE: 'hello' } }]
+        }], parse('if a and b\na = "hello"\nend'));
+      });
+
+      it('should work with a function call and a binop', function () {
+        assert.deepEqual([{
+          TYPE: 'IF',
+          CONDITION: { TYPE: 'BINARY_OPERATION', OPERATION: 'AND', LHS: { TYPE: 'FUNCTION_CALL', NAME: { TYPE: 'IDENTIFIER', VALUE: 'f' }, ARGUMENTS: [{TYPE: 'NUMBER', VALUE: 1}] }, RHS: { TYPE: 'IDENTIFIER', VALUE: 'b' } },
+          BODY: [{ TYPE: 'ASSIGNMENT', LHS: { TYPE: 'IDENTIFIER', VALUE: 'a' }, RHS: { TYPE: 'STRING', VALUE: 'hello' } }]
+        }], parse('if f(1) and b\na = "hello"\nend'));
+      });
+
+      it('should associate and before or', function () {
+        var node = parse('if a and b or c\na = "hello"\nend')[0];
+        assert.equal(
+          node.CONDITION.OPERATION, 'AND'
+        );
+        assert.equal(
+          node.CONDITION.RHS.OPERATION, 'OR'
+        );
+      });
+    });
+
   });
 });
 
