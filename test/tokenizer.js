@@ -6,6 +6,14 @@ describe('Tokenizer', function () {
   var Tokenizer = require('../src/tokenizer.js');
   var tokenizer = new Tokenizer();
 
+  it('should tokenize operators', function () {
+    assert.deepEqual([
+      { 'NAME': 'AND', 'VALUE': 'and' },
+      { 'NAME': 'OR', 'VALUE': 'or' },
+      { 'NAME': 'GT', 'VALUE': '>' },
+      ], tokenizer.tokenize('and or >'));
+  });
+
   it('should tokenize identifiers', function () {
     assert.deepEqual([
       { 'NAME': 'IDENTIFIER', 'VALUE': 'name' },

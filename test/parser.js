@@ -101,6 +101,14 @@ describe('Parser', function () {
           BLOCK: [{ NAME: 'ASSIGNMENT', LHS: { NAME: 'IDENTIFIER', VALUE: 'a' }, RHS: { NAME: 'STRING', VALUE: 'hello' } }]
         }], parse('if 1\na = "hello"\nend'));
       });
+
+      it('should work with an expression with an operator', function () {
+        assert.deepEqual([{
+          NAME: 'IF',
+          CONDITION: { NAME: 'BINARY_OPERATION', OPERATION: 'AND', LHS: { NAME: 'IDENTIFIER', VALUE: 'a' }, RHS: { NAME: 'IDENTIFIER', VALUE: 'b' } },
+          BLOCK: [{ NAME: 'ASSIGNMENT', LHS: { NAME: 'IDENTIFIER', VALUE: 'a' }, RHS: { NAME: 'STRING', VALUE: 'hello' } }]
+        }], parse('if a and b\na = "hello"\nend'));
+      });
     });
   });
 });

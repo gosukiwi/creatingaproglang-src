@@ -23,6 +23,33 @@
 
 'use strict';
 
+// Generic helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Extend strings to support the _inside_ method. This method returns true if
+ * the string is inside of an array.
+ *
+ * "apple".inside(["orange", "banana", "apple"]); // true
+ */
+String.prototype.inside = function(arr) {
+  var self = this;
+  var result = false;
+  arr.some(function (item) {
+    if(self === item) {
+      result = true;
+      return true;
+    }
+
+    return false;
+  });
+
+  return result;
+};
+
+// Parser
+// ---------------------------------------------------------------------------
+
 /**
  * Main parser, transforms an array of tokens into an AST.
  */
@@ -125,6 +152,13 @@ Parser.prototype.parseFunctionCall = function () {
   return { NAME: 'FUNCTION_CALL', FUNCTION_NAME: name, ARGUMENTS: args };
 };
 
+Parser.prototype.paseBinaryOperation = function () {
+  var lhs = this.parseIdentifier();
+  var operation = this.pop().NAME;
+  var rhs = this.parseExpression();
+  return { NAME: 'BINARY_OPERATION', OPERATION: operation, LHS: lhs, RHS: rhs };
+};
+
 /**
  * Parses an expression.
  * <function_call>
@@ -139,6 +173,8 @@ Parser.prototype.parseExpression = function () {
     case 'IDENTIFIER':
       if(second.NAME === 'PARENS_OPEN') {
         return this.parseFunctionCall();
+      } else if(second.NAME.inside(['AND', 'OR'])) {
+        return this.paseBinaryOperation();
       }
       return this.parseIdentifier();
     case 'STRING':

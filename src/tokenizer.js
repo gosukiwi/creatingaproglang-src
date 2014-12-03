@@ -72,14 +72,16 @@ function Tokenizer() {
           // hack to cast to either float or int
           return (+str);
         }),
-        // an identifier
-        new Token('IDENTIFIER', '^[a-za-z][a-za-z0-9_]*'),
-        // a comparison equal
+        // comparison tokens
+        new Token('AND', '^and'),
+        new Token('OR', '^or'),
         new Token('EQUALEQUAL', '^=='),
         // an equal
         new Token('EQUAL', '^='),
         // a comma
         new Token('COMMA', '^,'),
+        // an identifier
+        new Token('IDENTIFIER', '^[a-za-z][a-za-z0-9_]*'),
         // a new line
         new Token('NEWLINE', '^\n'),
     ];
