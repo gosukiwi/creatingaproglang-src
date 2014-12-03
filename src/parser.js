@@ -166,6 +166,25 @@ Parser.prototype.parseAssign = function () {
 };
 
 /**
+ * Parses an IF statement.
+ * <if> <expression> <newline>* <statement>* <end>
+ */
+Parser.prototype.parseIf = function () {
+  this.pop('IF');
+  var condition = this.parseExpression();
+  this.consumeNewlines();
+  // Block of statements to be executed
+  var block = [];
+  // We could have an empty if, so peek for statements
+  while(this.peek().NAME !== 'END') {
+    block.push(this.parseStatement());
+  }
+  this.pop('END');
+  this.consumeNewlines();
+  return { NAME: 'IF', CONDITION: condition, BLOCK: block };
+};
+
+/**
  * Parses a statement
  */
 Parser.prototype.parseStatement = function () {
@@ -177,6 +196,8 @@ Parser.prototype.parseStatement = function () {
         return this.parseFunctionCall();
       }
       return this.parseAssign();
+    case 'IF':
+      return this.parseIf();
     default:
       throw 'Invalid token';
   }

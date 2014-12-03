@@ -92,5 +92,15 @@ describe('Parser', function () {
         ], parse('f(g(a))'));
       });
     });
+
+    describe('If statement', function () {
+      it('should work with an expression', function () {
+        assert.deepEqual([{
+          NAME: 'IF',
+          CONDITION: { NAME: 'NUMBER', VALUE: 1 },
+          BLOCK: [{ NAME: 'ASSIGNMENT', LHS: { NAME: 'IDENTIFIER', VALUE: 'a' }, RHS: { NAME: 'STRING', VALUE: 'hello' } }]
+        }], parse('if 1\na = "hello"\nend'));
+      });
+    });
   });
 });
