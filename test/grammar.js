@@ -108,6 +108,9 @@ describe('Parser', function () {
       });
     });
 
+    describe('While statement', function () {
+    });
+
     describe('If statement', function () {
       it('should work with an expression', function () {
         assert.deepEqual([{
@@ -133,6 +136,14 @@ describe('Parser', function () {
         }], parse('if f(1) and b\na = "hello"\nend'));
       });
 
+      it('should work with a function call and another binop', function () {
+        assert.deepEqual([{
+          TYPE: 'IF',
+          CONDITION: { TYPE: 'BINARY_OPERATION', OPERATION: 'PLUS', LHS: { TYPE: 'FUNCTION_CALL', NAME: { TYPE: 'IDENTIFIER', VALUE: 'f' }, ARGUMENTS: [{TYPE: 'NUMBER', VALUE: 1}] }, RHS: { TYPE: 'IDENTIFIER', VALUE: 'b' } },
+          BODY: [{ TYPE: 'ASSIGNMENT', LHS: { TYPE: 'IDENTIFIER', VALUE: 'a' }, RHS: { TYPE: 'STRING', VALUE: 'hello' } }]
+        }], parse('if f(1) + b\na = "hello"\nend'));
+      });
+
       it('should associate and before or', function () {
         var node = parse('if a and b or c\na = "hello"\nend')[0];
         assert.equal(
@@ -142,6 +153,22 @@ describe('Parser', function () {
           node.CONDITION.RHS.OPERATION, 'OR'
         );
       });
+
+      it('should work with an else', function () {
+        assert.deepEqual([{
+          TYPE: 'IF',
+          CONDITION: { TYPE: 'NUMBER', VALUE: 1 },
+          BODY: [{ TYPE: 'ASSIGNMENT', LHS: { TYPE: 'IDENTIFIER', VALUE: 'a' }, RHS: { TYPE: 'STRING', VALUE: 'hello' } }],
+          ELSE: [{ TYPE: 'ASSIGNMENT', LHS: { TYPE: 'IDENTIFIER', VALUE: 'b' }, RHS: { TYPE: 'STRING', VALUE: 'bye' } }]
+        }], parse('if 1\na = "hello"\nelse\nb = "bye"\nend'));
+      });
+
+      it('should work with an elsif', function () {
+        var ast = parse('if 1\na = "hello"\nelse if 2\nb = "bye"\nelse\nc = "ok"\nend');
+        assert.deepEqual(ast[0].ELSIF.CONDITION,
+          { TYPE: 'NUMBER', VALUE: 2 });
+      });
+
     });
 
   });

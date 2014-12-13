@@ -7,10 +7,15 @@
 "def"                   return 'DEF';
 "end"                   return 'END';
 "if"                    return 'IF';
+"else"                  return 'ELSE';
 "&&"                    return 'AND';
 "and"                   return 'AND';
 "||"                    return 'OR';
 "or"                    return 'OR';
+"+"                     return 'PLUS';
+"-"                     return 'MINUS';
+"*"                     return 'TIMES';
+"/"                     return 'DIV';
 
 /* Literals */
 " "+                    /* skip whitespace */
@@ -28,6 +33,9 @@
 
 %left AND
 %left OR
+
+%left MINUS PLUS
+%left DIV TIMES
 
 %start Program
 
@@ -118,7 +126,11 @@ Assignment
     ;
 
 If
-    : IF Expression NEWLINE OptionalStatementList END
+    : IF Expression NEWLINE OptionalStatementList ELSE If
+        { $$ = { TYPE: 'ELSIF', CONDITION: $2, BODY: $4, ELSIF: $6 }; }
+    | IF Expression NEWLINE OptionalStatementList ELSE NEWLINE OptionalStatementList END
+        { $$ = { TYPE: 'IF', CONDITION: $2, BODY: $4, ELSE: $7 }; }
+    | IF Expression NEWLINE OptionalStatementList END
         { $$ = { TYPE: 'IF', CONDITION: $2, BODY: $4 }; }
     ;
 
@@ -130,6 +142,14 @@ BinaryOperation
         { $$ = { TYPE: 'BINARY_OPERATION', OPERATION: 'AND', LHS: $1, RHS: $3 }; }
     | Expression OR Expression
         { $$ = { TYPE: 'BINARY_OPERATION', OPERATION: 'OR', LHS: $1, RHS: $3 }; }
+    | Expression PLUS Expression
+        { $$ = { TYPE: 'BINARY_OPERATION', OPERATION: 'PLUS', LHS: $1, RHS: $3 }; }
+    | Expression MINUS Expression
+        { $$ = { TYPE: 'BINARY_OPERATION', OPERATION: 'MINUS', LHS: $1, RHS: $3 }; }
+    | Expression TIMES Expression
+        { $$ = { TYPE: 'BINARY_OPERATION', OPERATION: 'TIMES', LHS: $1, RHS: $3 }; }
+    | Expression DIV Expression
+        { $$ = { TYPE: 'BINARY_OPERATION', OPERATION: 'DIV', LHS: $1, RHS: $3 }; }
     ;
 
 Expression
