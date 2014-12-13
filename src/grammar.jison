@@ -8,6 +8,7 @@
 "end"                   return 'END';
 "if"                    return 'IF';
 "else"                  return 'ELSE';
+"while"                 return 'WHILE';
 "&&"                    return 'AND';
 "and"                   return 'AND';
 "||"                    return 'OR';
@@ -133,6 +134,11 @@ If
     | IF Expression NEWLINE OptionalStatementList END
         { $$ = { TYPE: 'IF', CONDITION: $2, BODY: $4 }; }
     ;
+
+While
+  : WHILE Expression NEWLINE OptionalStatementList END
+        { $$ = { TYPE: 'WHILE', CONDITION: $2, BODY: $4 }; }
+  ;
 
 /* Expressions                                                              */
 /* ------------------------------------------------------------------------ */

@@ -109,6 +109,13 @@ describe('Parser', function () {
     });
 
     describe('While statement', function () {
+      it('should work with an expression', function () {
+        assert.deepEqual([{
+          TYPE: 'WHILE',
+          CONDITION: { TYPE: 'NUMBER', VALUE: 1 },
+          BODY: [{ TYPE: 'ASSIGNMENT', LHS: { TYPE: 'IDENTIFIER', VALUE: 'a' }, RHS: { TYPE: 'STRING', VALUE: 'hello' } }]
+        }], parse('while 1\na = "hello"\nend'));
+      });
     });
 
     describe('If statement', function () {
